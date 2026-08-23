@@ -77,7 +77,6 @@
   .track {
     display: flex;
     width: max-content;
-    animation: slide 110s linear infinite;
   }
   .set {
     display: flex;
@@ -185,8 +184,6 @@ function buildStrips() {
     const track = m.querySelector(".track");
     let order = [];
     for (let r = 0; r < 4; r++) order = order.concat(shuffled(IMAGES));
-    track.style.animationDuration = SPEEDS[idx % SPEEDS.length];
-    if (idx % 2 === 1) track.style.animationName = "slide-r";
     for (let i = 0; i < 2; i++) {
       const set = document.createElement("div");
       set.className = "set";
