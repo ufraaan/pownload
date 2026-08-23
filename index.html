@@ -6,165 +6,229 @@
 <title>pownload</title>
 <style>
   :root {
-    --bg: #0e0e11;
-    --surface: #17171c;
-    --border: #2a2a33;
-    --text: #e8e8ee;
-    --muted: #8b8b98;
-    --accent: #6c8cff;
+    --bg: #fcfcfc;
+    --text: #171717;
+    --muted: #9a9a9a;
+    --strip-h: 180px;
+    --strip-gap: 44px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; }
   body {
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-family: ui-sans-serif, -apple-system, "Helvetica Neue", Arial, sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 24px;
-    gap: 16px;
   }
-  h1 { font-size: 1.6rem; letter-spacing: -0.02em; }
-  h1 span { color: var(--accent); }
-  p.sub { color: var(--muted); font-size: 0.9rem; margin-top: -10px; }
-  .card {
-    width: 100%;
-    max-width: 560px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px;
+  main {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-  }
-  #drop {
-    border: 2px dashed var(--border);
-    border-radius: 10px;
-    min-height: 180px;
-    padding: 14px;
-    display: flex;
     align-items: center;
-    justify-content: center;
-    text-align: center;
-    color: var(--muted);
-    font-size: 0.95rem;
-    cursor: text;
-    outline: none;
-    transition: border-color 0.15s, background 0.15s;
-    white-space: pre-wrap;
-    word-break: break-word;
-    overflow-y: auto;
-    max-height: 320px;
+    gap: 10px;
+    user-select: none;
+    position: relative;
+    z-index: 2;
+    padding: 32px 48px;
+    background: radial-gradient(closest-side, rgba(252, 252, 252, 0.95), rgba(252, 252, 252, 0));
   }
-  #drop:focus, body.dragging #drop {
-    border-color: var(--accent);
-    background: rgba(108, 140, 255, 0.06);
-  }
-  body.dragging #drop::after {
-    content: "";
-  }
-  #preview {
-    display: none;
-    max-width: 100%;
-    max-height: 240px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    align-self: center;
-  }
-  .row { display: flex; gap: 8px; }
-  input[type="text"] {
-    flex: 1;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 0.95rem;
-    outline: none;
-  }
-  input[type="text"]:focus { border-color: var(--accent); }
-  button {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 0.95rem;
+  h1 {
+    font-size: 15px;
     font-weight: 600;
-    cursor: pointer;
-    transition: filter 0.15s;
+    letter-spacing: -0.01em;
   }
-  button:hover { filter: brightness(1.1); }
-  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  p {
+    color: #4a4a52;
+    font-size: 13px;
+  }
+  kbd {
+    font-family: inherit;
+    color: var(--text);
+  }
+  .marquee {
+    position: fixed;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .noise {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E"),
+      linear-gradient(rgba(252, 252, 252, 0.38), rgba(252, 252, 252, 0.38));
+  }
+  .marquee.top { top: calc(50% - var(--strip-h) - var(--strip-gap)); }
+  .marquee.top2 { top: calc(50% - 2 * (var(--strip-h) + var(--strip-gap))); }
+  .marquee.center { top: 50%; }
+  .marquee.bottom2 { top: calc(50% + 2 * (var(--strip-h) + var(--strip-gap))); }
+  .marquee.bottom { top: calc(50% + var(--strip-h) + var(--strip-gap)); }
+  .track {
+    display: flex;
+    width: max-content;
+    animation: slide 110s linear infinite;
+  }
+  .set {
+    display: flex;
+    gap: 16px;
+    padding-right: 16px;
+  }
+  .set img {
+    height: var(--strip-h);
+    width: auto;
+    display: block;
+    border-radius: 14px;
+    opacity: 0.92;
+    background: #ececec;
+  }
+  @keyframes slide {
+    to { transform: translateX(-50%); }
+  }
+  @keyframes slide-r {
+    from { transform: translateX(-50%); }
+    to { transform: translateX(0); }
+  }
+  @media (max-width: 640px) {
+    :root { --strip-h: 110px; --strip-gap: 28px; }
+    .set img { border-radius: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .track { animation: none; }
+  }
   #toast {
     position: fixed;
+    z-index: 10;
     bottom: 28px;
     left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: #222229;
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px 18px;
-    border-radius: 999px;
-    font-size: 0.9rem;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--text);
+    color: #fff;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 12px;
     opacity: 0;
-    transition: transform 0.25s ease, opacity 0.25s ease;
+    transition: transform 0.2s ease, opacity 0.2s ease;
     pointer-events: none;
   }
   #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 </style>
 </head>
 <body>
-  <h1>pown<span>load</span></h1>
-  <p class="sub">Paste anything here — text or screenshot — then hit download.</p>
-
-  <div class="card">
-    <div id="drop" tabindex="0" contenteditable="true" data-placeholder=""></div>
-    <img id="preview" alt="preview">
-    <div class="row">
-      <input id="name" type="text" placeholder="filename (optional)" spellcheck="false">
-      <button id="dl" disabled>Download</button>
-    </div>
+  <div class="marquee top" aria-hidden="true">
+    <div class="track"></div>
   </div>
+
+  <div class="marquee top2" aria-hidden="true">
+    <div class="track"></div>
+  </div>
+
+  <div class="marquee center" aria-hidden="true">
+    <div class="track"></div>
+  </div>
+
+  <div class="marquee bottom2" aria-hidden="true">
+    <div class="track"></div>
+  </div>
+
+  <div class="marquee bottom" aria-hidden="true">
+    <div class="track"></div>
+  </div>
+
+  <div class="noise"></div>
+
+  <main>
+    <h1>pownload</h1>
+    <p>press <kbd>⌘V</kbd> anywhere</p>
+  </main>
 
   <div id="toast"></div>
 
 <script>
-const drop = document.getElementById("drop");
-const preview = document.getElementById("preview");
-const nameInput = document.getElementById("name");
-const dlBtn = document.getElementById("dl");
-const toast = document.getElementById("toast");
+const IMAGES = [
+  "strip-01.jpeg",
+  "strip-02.jpeg",
+  "strip-03.jpeg",
+  "strip-04.jpeg",
+  "strip-05.jpeg",
+  "strip-06.jpeg",
+  "strip-07.jpeg"
+];
 
-let state = null;
-
-const PLACEHOLDER = "Click here and press Ctrl+V / ⌘V to paste…";
-function setPlaceholder() {
-  if (!state) drop.textContent = PLACEHOLDER;
+function shuffled(files) {
+  const a = [...files];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
-setPlaceholder();
+
+const SPEEDS = ["110s", "110s", "110s", "110s", "110s"];
+const DIMS_KEY = "pownload-img-dims";
+let dims = null;
+try { dims = JSON.parse(localStorage.getItem(DIMS_KEY)); } catch (e) {}
+if (!dims || IMAGES.some((f) => !dims[f])) dims = null;
+
+function buildStrips() {
+  document.querySelectorAll(".marquee").forEach((m, idx) => {
+    const track = m.querySelector(".track");
+    let order = [];
+    for (let r = 0; r < 4; r++) order = order.concat(shuffled(IMAGES));
+    track.style.animationDuration = SPEEDS[idx % SPEEDS.length];
+    if (idx % 2 === 1) track.style.animationName = "slide-r";
+    for (let i = 0; i < 2; i++) {
+      const set = document.createElement("div");
+      set.className = "set";
+      if (i === 1) set.setAttribute("aria-hidden", "true");
+      for (const f of order) {
+        const img = new Image();
+        img.src = f;
+        img.alt = "";
+        img.draggable = false;
+        const d = dims[f];
+        if (d) img.style.aspectRatio = `${d.w} / ${d.h}`;
+        set.appendChild(img);
+      }
+      track.appendChild(set);
+    }
+  });
+}
+
+if (dims) {
+  buildStrips();
+} else {
+  dims = {};
+  let pending = IMAGES.length;
+  for (const f of IMAGES) {
+    const probe = new Image();
+    probe.onload = probe.onerror = () => {
+      dims[f] = { w: probe.naturalWidth || 1, h: probe.naturalHeight || 1 };
+      if (--pending === 0) {
+        try { localStorage.setItem(DIMS_KEY, JSON.stringify(dims)); } catch (e) {}
+        buildStrips();
+      }
+    };
+    probe.src = f;
+  }
+}
+
+const toast = document.getElementById("toast");
 
 function toastMsg(msg) {
   toast.textContent = msg;
   toast.classList.add("show");
   clearTimeout(toast._t);
-  toast._t = setTimeout(() => toast.classList.remove("show"), 2200);
+  toast._t = setTimeout(() => toast.classList.remove("show"), 2000);
 }
 
-function sanitize(name, fallbackExt) {
-  let n = name.trim().replace(/[\\/:*?"<>|]/g, "");
-  if (!n) return `pownload.${fallbackExt}`;
-  if (!/\.[a-z0-9]{1,8}$/i.test(n)) n += "." + fallbackExt;
-  return n;
-}
-
-function download() {
-  const isImage = state.type === "image";
-  const filename = sanitize(nameInput.value, isImage ? "png" : "txt");
-  const blob = isImage ? state.blob : new Blob([state.text], { type: "text/plain;charset=utf-8" });
+function saveBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -173,32 +237,28 @@ function download() {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 500);
+}
+
+function safeName(name) {
+  return name.trim().replace(/[\\/:*?"<>|]/g, "") || "pownload";
+}
+
+function guessTextName(text) {
+  const first = text.split("\n")[0].trim();
+  if (/^[\w.-]+\.[a-z0-9]{1,8}$/i.test(first)) return safeName(first);
+  return "pownload.txt";
+}
+
+function saveImage(blob) {
+  const filename = safeName("pownload") + ".png";
+  saveBlob(blob.type === "image/png" ? blob : new Blob([blob], { type: "image/png" }), filename);
   toastMsg(`Saved ${filename}`);
 }
 
-function setImage(blob) {
-  state = { type: "image", blob };
-  drop.textContent = "";
-  preview.src = URL.createObjectURL(blob);
-  preview.style.display = "block";
-  dlBtn.disabled = false;
-  nameInput.focus();
-}
-
-function setText(text) {
-  state = { type: "text", text };
-  drop.textContent = text;
-  preview.style.display = "none";
-  dlBtn.disabled = false;
-}
-
-function clearAll() {
-  state = null;
-  preview.style.display = "none";
-  preview.removeAttribute("src");
-  dlBtn.disabled = true;
-  drop.textContent = "";
-  setPlaceholder();
+function saveText(text) {
+  const filename = guessTextName(text);
+  saveBlob(new Blob([text], { type: "text/plain;charset=utf-8" }), filename);
+  toastMsg(`Saved ${filename}`);
 }
 
 document.addEventListener("paste", (e) => {
@@ -206,52 +266,26 @@ document.addEventListener("paste", (e) => {
   const items = e.clipboardData?.items || [];
   for (const item of items) {
     if (item.type.startsWith("image/")) {
-      setImage(item.getAsFile());
-      toastMsg(`Image detected (${item.type})`);
+      saveImage(item.getAsFile());
       return;
     }
   }
   const text = e.clipboardData?.getData("text/plain");
-  if (text) setText(text);
+  if (text) saveText(text);
 });
 
-["dragover", "dragenter"].forEach((ev) =>
-  document.addEventListener(ev, (e) => { e.preventDefault(); document.body.classList.add("dragging"); })
-);
-["dragleave", "dragend"].forEach((ev) =>
-  document.addEventListener(ev, () => document.body.classList.remove("dragging"))
-);
+document.addEventListener("dragover", (e) => e.preventDefault());
 document.addEventListener("drop", (e) => {
   e.preventDefault();
-  document.body.classList.remove("dragging");
   const file = e.dataTransfer?.files?.[0];
   if (!file) return;
   if (file.type.startsWith("image/")) {
-    setImage(file);
-    toastMsg(`Loaded ${file.name}`);
+    saveImage(file);
   } else {
     const reader = new FileReader();
-    reader.onload = () => setText(reader.result);
+    reader.onload = () => saveText(reader.result);
     reader.readAsText(file);
   }
-});
-
-drop.addEventListener("focus", () => { if (drop.textContent === PLACEHOLDER) drop.textContent = ""; });
-drop.addEventListener("blur", setPlaceholder);
-drop.addEventListener("input", () => {
-  state = { type: "text", text: drop.innerText };
-  dlBtn.disabled = false;
-});
-drop.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-    e.preventDefault();
-    if (state) download();
-  }
-});
-
-dlBtn.addEventListener("click", () => { if (state) download(); });
-nameInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") download();
 });
 </script>
 </body>
